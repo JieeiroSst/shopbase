@@ -1,0 +1,2 @@
+CREATE DATABASE 'shopbase';
+GRANT ALL PRIVILEGES ON DATABASE 'shopbase' to user;
