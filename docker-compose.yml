@@ -1,20 +1,13 @@
 version: '3'
 
 services:
-  database:
-    image: postgres
-    restart: always
-    env_file:
-      - .env
+  postgres:
     ports:
-      - "5435:5432"
+      - '5444:5432'
+    restart: always
+    image: postgres:9.6.5-alpine
     volumes:
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-      - ./var/lib/postgresql/data/
-    environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: 1234
-      POSTGRES_DB: shopbase
+      - ./postgres-initdb.sh:/docker-entrypoint-initdb.d/init.sh
     network_mode: "host"
   node-app:
     image: baseshop
@@ -29,7 +22,9 @@ services:
     ports:
       - "3200:3200"
     depends_on:
-      - database
+      - postgres
     network_mode: "host"
+
+
 volumes:
-  database-data:  
+  postgres-data:  

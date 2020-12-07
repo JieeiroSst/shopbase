@@ -1,3 +1,0 @@
-CREATE USER user with PASSWORD '1234' CREATEDB;
-CREATE DATABASE 'shopbase';
-GRANT ALL PRIVILEGES ON DATABASE 'shopbase' to user;    
