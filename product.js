@@ -19,18 +19,19 @@ const insertProduct = async () => {
       };
       await db("products").insert(entities);
     }
-  }
-  for (const product of products) {
-    entities = {
-      shopbase_data: product,
-      created_at: product.created_at,
-      updated_at: product.updated_at,
-      shopbase_id: product.id,
-      published_at: product.published_at,
-      handle: product.handle,
-    };
-    if (!arrayId.includes(product.id)) {
-      await db("products").insert(entities);
+  } else {
+    for (const product of products) {
+      entities = {
+        shopbase_data: product,
+        created_at: product.created_at,
+        updated_at: product.updated_at,
+        shopbase_id: product.id,
+        published_at: product.published_at,
+        handle: product.handle,
+      };
+      if (!arrayId.includes(product.id)) {
+        await db("products").insert(entities);
+      }
     }
   }
 };
