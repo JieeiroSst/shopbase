@@ -12,8 +12,8 @@ const insertProduct = async (shop) => {
       entities = {
         shopbase_data: product,
         created_at: product.created_at,
-        shop,
         updated_at: product.updated_at,
+        shop,
         shopbase_id: product.id,
         published_at: product.published_at,
         handle: product.handle,
@@ -22,16 +22,16 @@ const insertProduct = async (shop) => {
     }
   } else {
     for (const product of products) {
-      entities = {
-        shopbase_data: product,
-        created_at: product.created_at,
-        shop,
-        updated_at: product.updated_at,
-        shopbase_id: product.id,
-        published_at: product.published_at,
-        handle: product.handle,
-      };
       if (!arrayId.includes(product.id)) {
+        entities = {
+          shopbase_data: product,
+          created_at: product.created_at,
+          updated_at: product.updated_at,
+          shop,
+          shopbase_id: product.id,
+          published_at: product.published_at,
+          handle: product.handle,
+        };
         await db("products").insert(entities);
       }
     }
