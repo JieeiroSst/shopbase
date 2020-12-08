@@ -2,7 +2,7 @@ const _ = require("lodash");
 const { accessToken } = require("./shopbase");
 const config = require("./config");
 const tranform = require("./transfrom");
-const { getDateValue } = require("./utils");
+const { getDateValue, fetchEventData } = require("./utils");
 const db = require("./db/knex");
 
 const resources = ["products", "collections"];
@@ -98,9 +98,18 @@ class ShopbaseSync {
       event.verb == "batch" && event.source != "";
     }
   }
-  async processEvent(ctx) {
-    console.log(ctx);
+  async processEvent(ctx, { index }) {
+    const { event } = ctx.job.data;
+    const shop = event.shop;
+    await this.getCategories(shop);
+    const processor = new CatalogProcessor(ctx, this.categories, ctx.store);
+    if (resources.includes(event.resource)) {
+      const data = await fetchEventData(event);
+      if (event.verb == "batch")
+        return await processor.processBatch(event.resource, data, index);
+      return true;
+    }
   }
 }
 
-module.exports = ShopbaseSync;
+module.exports = { ShopbaseSync, CatalogProcessor };

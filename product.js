@@ -1,7 +1,7 @@
 const db = require("./db/knex");
 const { sendRequest } = require("./shopbase");
 
-const insertProduct = async () => {
+const insertProduct = async (shop) => {
   const data = await sendRequest();
   const products = data.data.products;
   const ids = await db("products").select(db.raw(`shopbase_id`));
@@ -12,6 +12,7 @@ const insertProduct = async () => {
       entities = {
         shopbase_data: product,
         created_at: product.created_at,
+        shop,
         updated_at: product.updated_at,
         shopbase_id: product.id,
         published_at: product.published_at,
@@ -24,6 +25,7 @@ const insertProduct = async () => {
       entities = {
         shopbase_data: product,
         created_at: product.created_at,
+        shop,
         updated_at: product.updated_at,
         shopbase_id: product.id,
         published_at: product.published_at,
