@@ -1,0 +1,3 @@
+CREATE DATABASE shopbase;
+CREATE USER this_user WITH PASSWORD '1234';
+GRANT ALL PRIVILEGES ON DATABASE "shopbase" to this_user;

@@ -11,11 +11,13 @@ exports.seed = function (knex) {
             "7cb1476b31d0b7db9ce529ac6c1145992d041c157ec13e1281c62efe07eb607b",
           url:
             "https://d4ba329cd5c8d566e9633ec4597b2002:7cb1476b31d0b7db9ce529ac6c1145992d041c157ec13e1281c62efe07eb607b@wweb.onshopbase.com/admin",
+          domain:
+            "wweb.onshopbase.com",
           secret_api: "d13fec20efc0b0de2e45010d3bbb0c43",
           token:
             "c7d54b168e926045504ce3af5a7226116efe6b592679085cc3bf0c59283b4b7f",
         },
-        value: {
+        values: {
           type: "service_account",
           id: "merchant-center-1607135893564",
           key_id: "a51c1996f4e02c168a106ba837e97781c2f829e5",

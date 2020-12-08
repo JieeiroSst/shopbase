@@ -6,7 +6,7 @@ exports.up = async function (knex) {
             created_at timestamp default now(),
             installed_at timestamp default now(),
             info jsonb,
-            value jsonb,
+            values jsonb,
             google_sync jsonb
         )
     `);

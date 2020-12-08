@@ -64,3 +64,7 @@ class CatalogProcessor {
     }
   }
 }
+
+class shopbaseSync {
+  async processEvent(ctx) {}
+}

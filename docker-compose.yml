@@ -2,12 +2,16 @@ version: '3'
 
 services:
   postgres:
-    ports:
-      - '5444:5432'
-    restart: always
     image: postgres:9.6.5-alpine
+    restart: always
+    environment:
+      - POSTGRES_HOST=127.0.0.1
+      - POSTGRES_PASSWORD=1234
     volumes:
-      - ./postgres-initdb.sh:/docker-entrypoint-initdb.d/init.sh
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - '5433:5432'
     network_mode: "host"
   node-app:
     image: baseshop
@@ -24,7 +28,5 @@ services:
     depends_on:
       - postgres
     network_mode: "host"
-
-
-volumes:
+volumes:    
   postgres-data:  

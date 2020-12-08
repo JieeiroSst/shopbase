@@ -4,13 +4,13 @@ const { DATABASE_CLIENT, DATABASE_DB, POSTGRES_USER, POTGRES_PASSWORD, DATABASE_
 
 module.exports = {
     development: {
-        client: DATABASE_CLIENT,
+        client: "pg",
         connection: {
-            database: DATABASE_DB,
-            user: POSTGRES_USER,
-            password: POTGRES_PASSWORD,
-            host: DATABASE_HOST,
-            port: POSTGRES_PORT,
+            database: "shopbase",
+            user: "root",
+            password: "1234",
+            host: "127.0.0.1",
+            port: 5432,
         },
         migrations: {
             directory: __dirname + '/db/migrations',

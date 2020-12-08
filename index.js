@@ -9,4 +9,5 @@ const readData = async () => {
   }
 };
 
-
+readData()
+updateToken("wweb")
