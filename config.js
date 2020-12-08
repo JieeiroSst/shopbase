@@ -26,4 +26,12 @@ module.exports = {
     mmc_merchant_id: env.mmc_merchant_id,
     single_variant: env.single_variant,
   },
+  sheets: {
+    apiUrl: env.SPREAD_SHEETS_API_URL,
+    categoriesSheetId: env.SPREAD_SHEET_CATEGORIES_ID,
+    categoriesSheetRange: env.CATEGORIES_SHEETS_RANGE,
+    titleRulesId: env.SPREAD_SHEET_TITLE_RULES_ID,
+    privateKey: env.GOOGLE_API_PRIVATE_KEY,
+    clientMail: env.GOOGLE_CLIENT_EMAIL,
+  },
 };

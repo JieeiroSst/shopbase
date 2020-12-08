@@ -2,6 +2,8 @@ const _ = require("lodash");
 const { accessToken } = require("./shopbase");
 const config = require("./config");
 const tranform = require("./transfrom");
+const { getDateValue } = require("./utils");
+const db = require("./db/knex");
 
 const resources = ["products", "collections"];
 
@@ -33,38 +35,72 @@ class CatalogProcessor {
       },
     });
   }
-  async processBatch(resource, data) {
-    const mmMerchantId = config.google_merchant.mmc_merchant_id;
-    const mmcLocation = config.google_merchant.location;
-    if (resource == "products") {
-      let requestBody = [];
-      for (const item of data) {
-        if (item.verb == " create" || item.verb == "update") {
-          const product = await tranform.transformProductGroup(
-            item,
-            mmcLocation,
-            this.store,
-            this.categiries,
-            mmMerchantId,
-            config.google_merchant.single_variant
-          );
-          if (product) requestBody = requestBody.concat(product);
-        }
+  async processBatch(resource, data, idx) {
+    const googleInfo = this.store.google_sync;
+    if (googleInfo) {
+      let values = googleInfo.values;
+      if (idx) {
+        values = [values[idx]];
       }
-      const bodies = _.chunk(requestBody, 500);
-      const access_token = await accessToken();
-      for (const body of bodies) {
-        for (const index in body) {
-          body[index].batchId = index;
+      for (const item of values) {
+        const mmMerchantId = item.mmc_merchant_id;
+        const mmcLocation = item.location;
+        if (resource == "products") {
+          let requestBody = [];
+          for (const item of data) {
+            if (item.verb == " create" || item.verb == "update") {
+              const product = await tranform.transformProductGroup(
+                item,
+                mmcLocation,
+                this.store,
+                this.categiries,
+                mmMerchantId,
+                googleInfo.single_variant
+              );
+              if (product) requestBody = requestBody.concat(product);
+            }
+          }
+          const bodies = _.chunk(requestBody, 500);
+          const access_token = await accessToken();
+          for (const body of bodies) {
+            for (const index in body) {
+              body[index].batchId = index;
+            }
+            await this.safeReuest(async () => {
+              await this.sendBatch(body, access_token);
+            });
+          }
         }
-        await this.safeReuest(async () => {
-          await this.sendBatch(body, access_token);
-        });
       }
     }
   }
 }
 
-class shopbaseSync {
-  async processEvent(ctx) {}
+class ShopbaseSync {
+  async getCategories(shop) {
+    const lastUpdated = await getDateValue(
+      shop,
+      "categories_updated_at",
+      new Date(0)
+    );
+    if (!this.categoriesUpdatedAt || this.categoriesUpdatedAt < lastUpdated) {
+      this.categories = await db("google_categories")
+        .where({ shop })
+        .then((rows) => rows);
+    }
+    return this.categories;
+  }
+  async acceptEvent(event) {
+    const shop = event.shop;
+    const store = await db("shopbase_stores").where({ shop }).first();
+    const googleInfo = store.google_sync;
+    if (googleInfo.values && googleInfo.google_sync_token) {
+      event.verb == "batch" && event.source != "";
+    }
+  }
+  async processEvent(ctx) {
+    console.log(ctx);
+  }
 }
+
+module.exports = ShopbaseSync;
