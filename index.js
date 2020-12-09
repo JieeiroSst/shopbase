@@ -1,14 +1,10 @@
-const { transformProductGroup } = require("./transfrom");
-const { CatalogProcessor } = require("./catalog");
-const { getCategories } = require("./google-sheets");
-const { updateToken } = require("./shopbase");
 const db = require("./db/knex");
+const { updateToken } = require("./shopbase");
 const { insertProduct } = require("./product");
-
-insertProduct();
+const { getCategoriesSheets } = require("./google-sheets");
 
 async function main() {
-  getCategories();
+  getCategoriesSheets();
   const shops = await db("shopbase_stores").select("shop");
   const arrayShop = shops.map((item) => item.shop);
   for (let item of arrayShop) {

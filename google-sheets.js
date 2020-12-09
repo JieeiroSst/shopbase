@@ -29,7 +29,7 @@ const sortedCategories = (list) => {
   return list;
 };
 
-const getCategories = async () => {
+const getCategoriesSheets = async () => {
   let categories = [];
   const data = await getGGSheets(
     config.sheets.categoriesSheetId,
@@ -49,4 +49,4 @@ const getCategories = async () => {
   }
 };
 
-module.exports = { getCategories };
+module.exports = { getCategoriesSheets };
