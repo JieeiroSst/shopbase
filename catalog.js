@@ -1,6 +1,4 @@
 const _ = require("lodash");
-const { accessToken } = require("./shopbase");
-const config = require("./config");
 const tranform = require("./transfrom");
 const { getDateValue, fetchEventData } = require("./utils");
 const db = require("./db/knex");
@@ -61,13 +59,12 @@ class CatalogProcessor {
             }
           }
           const bodies = _.chunk(requestBody, 500);
-          const access_token = await accessToken();
           for (const body of bodies) {
             for (const index in body) {
               body[index].batchId = index;
             }
             await this.safeReuest(async () => {
-              await this.sendBatch(body, access_token);
+              await this.sendBatch(body, googleInfo.google_sync_token);
             });
           }
         }
@@ -112,4 +109,4 @@ class ShopbaseSync {
   }
 }
 
-module.exports = { ShopbaseSync, CatalogProcessor };
+module.exports = { ShopbaseSync };
