@@ -1,112 +1,69 @@
 const _ = require("lodash");
+const axios = require("axios");
 const tranform = require("./transfrom");
-const { getDateValue, fetchEventData } = require("./utils");
 const db = require("./db/knex");
 
-const resources = ["products", "collections"];
+const sendBatch = async (data, token) => {
+  return await axios({
+    method: "POST",
+    url: "https://www.googleapis.com/content/v2.1/products/batch",
+    data: {
+      entries: data,
+    },
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
 
-class CatalogProcessor {
-  constructor(ctx, categories, store) {
-    this.ctx = ctx;
-    this.categiries = categories;
-    this.store = store;
-  }
-  log(...args) {
-    return this.ctx.info(...args);
-  }
-  safeReuest(fn) {
-    return this.ctx.delayedRetry(fn, (err) => {
-      const responseData = _.get(err, "response.data");
-      const meta = { responseData };
-      return { retry: true, meta };
-    });
-  }
-  async sendBatch(data, token) {
-    return await axios({
-      method: "POST",
-      url: `https://www.googleapis.com/content/v2.1/products/batch`,
-      data: {
-        entries: data,
-      },
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-  }
-  async processBatch(resource, data, idx) {
-    const googleInfo = this.store.google_sync;
-    if (googleInfo) {
-      let values = googleInfo.values;
-      if (idx) {
-        values = [values[idx]];
+const processBatch = async (store, data, categories) => {
+  const googleInfo = store.google_sync;
+  if (googleInfo) {
+    let values = googleInfo.values;
+    for (const item of values) {
+      const mmMerchantId = item.mmc_merchant_id;
+      const mmcLocation = item.location;
+      let requestBody = [];
+      for (const item of data) {
+        const product = await tranform.transformProductGroup(
+          item,
+          mmcLocation,
+          store,
+          categories,
+          Number(mmMerchantId),
+          googleInfo.single_variant
+        );
+        if (product) requestBody = requestBody.concat(product);
       }
-      for (const item of values) {
-        const mmMerchantId = item.mmc_merchant_id;
-        const mmcLocation = item.location;
-        if (resource == "products") {
-          let requestBody = [];
-          for (const item of data) {
-            if (item.verb == " create" || item.verb == "update") {
-              const product = await tranform.transformProductGroup(
-                item,
-                mmcLocation,
-                this.store,
-                this.categiries,
-                mmMerchantId,
-                googleInfo.single_variant
-              );
-              if (product) requestBody = requestBody.concat(product);
-            }
-          }
-          const bodies = _.chunk(requestBody, 500);
-          for (const body of bodies) {
-            for (const index in body) {
-              body[index].batchId = index;
-            }
-            await this.safeReuest(async () => {
-              await this.sendBatch(body, googleInfo.google_sync_token);
-            });
-          }
+      const bodies = _.chunk(requestBody, 500);
+      for (const body of bodies) {
+        for (const index in body) {
+          const numIndex = Number(index);
+          body[numIndex].batchId = numIndex;
         }
+        const dataJson = {
+          entries: body,
+        };
+        // console.log(JSON.stringify(a));
+        console.log(
+          "\n",
+          await sendBatch(dataJson, googleInfo.google_sync_token),
+          ">>>>>>>>> \n"
+        );
+        await sendBatch(a, googleInfo.google_sync_token);
       }
     }
   }
-}
+};
 
-class ShopbaseSync {
-  async getCategories(shop) {
-    const lastUpdated = await getDateValue(
-      shop,
-      "categories_updated_at",
-      new Date(0)
-    );
-    if (!this.categoriesUpdatedAt || this.categoriesUpdatedAt < lastUpdated) {
-      this.categories = await db("google_categories")
-        .where({ shop })
-        .then((rows) => rows);
-    }
-    return this.categories;
+const productBatch = async () => {
+  const stores = await db("shopbase_stores");
+  const googleCategories = await db("google_categories");
+  const products = await db("products").select("shopbase_data");
+  const data = products.map((item) => item.shopbase_data);
+  for (let store of stores) {
+    await processBatch(store, data, googleCategories);
   }
-  async acceptEvent(event) {
-    const shop = event.shop;
-    const store = await db("shopbase_stores").where({ shop }).first();
-    const googleInfo = store.google_sync;
-    if (googleInfo.values && googleInfo.google_sync_token) {
-      event.verb == "batch" && event.source != "";
-    }
-  }
-  async processEvent(ctx, { index }) {
-    const { event } = ctx.job.data;
-    const shop = event.shop;
-    await this.getCategories(shop);
-    const processor = new CatalogProcessor(ctx, this.categories, ctx.store);
-    if (resources.includes(event.resource)) {
-      const data = await fetchEventData(event);
-      if (event.verb == "batch")
-        return await processor.processBatch(event.resource, data, index);
-      return true;
-    }
-  }
-}
+};
 
-module.exports = { ShopbaseSync };
+module.exports = { productBatch };

@@ -1,6 +1,14 @@
 const striptags = require("striptags");
 const fx = require("money");
 
+const db = require("./db/knex");
+
+const { updateExchangeRates } = require("./lib");
+
+const truncateString = (name, length) => {
+  return name.length > length ? name.substring(0, length) + "..." : name;
+};
+
 const getDescription = (description) => {
   return truncateString(striptags(description), 9997);
 };
@@ -8,6 +16,21 @@ const getDescription = (description) => {
 const getMethod = (method) => {
   if (method == "delete") return method;
   return "insert";
+};
+
+const transformGender = (gender) => {
+  if (!gender) return "unisex";
+  switch (gender) {
+    case "men":
+      return "male";
+    case "women":
+      return "female";
+  }
+};
+
+const getGender = (options, variant) => {
+  const gender = getOption("gender", options, variant);
+  return transformGender(gender);
 };
 
 const countryCurrency = (country) => {
@@ -52,6 +75,18 @@ const getResizeImageUrl = (url, size) => {
   return url.replace(/\.(?=jpg|png|gif)/i, `_${size}x.`);
 };
 
+const findVariantImage = (variantId, images) => {
+  const url = images.find((image) =>
+    image.variant_ids.find((id) => id == variantId)
+  );
+  return url ? url.src : "";
+};
+
+const addTimeForImageUrl = (url) => {
+  let date = new Date();
+  return url + `?time=${date.toJSON()}`;
+};
+
 const getImageLink = (product, variant) => {
   const variantImage = findVariantImage(variant.id, product.images);
   if (variantImage)
@@ -70,6 +105,25 @@ const getOption = (property, options, variant) => {
     }
   }
   return undefined;
+};
+
+const findOne = () => {
+  return db("properties").select().where({ key: "exchange_rates" }).first();
+};
+
+const getExchangeRates = async () => {
+  const rates = await findOne();
+  if (rates) {
+    const nowDate = new Date();
+    const updatedDate = new Date(rates.updated_at);
+    const updateTimes = nowDate - updatedDate;
+    if (updateTimes > 86400000) {
+      await updateExchangeRates();
+    }
+  } else {
+    await updateExchangeRates();
+  }
+  return await findOne();
 };
 
 const convertCurrency = async (from, to, price) => {
@@ -114,11 +168,11 @@ const transformProductGroup = async (
   mmcLocation,
   store,
   categories,
-  merchanId,
+  merchantId,
   singleVariant
 ) => {
   let group = [];
-  const product = item.products;
+  const product = item;
   if (product.variants) {
     let variants = product.variants;
     if (singleVariant) {
@@ -131,7 +185,7 @@ const transformProductGroup = async (
       const id = `${channel}:${contentLanguage}:${targetCountry}`;
       if (!product.published_at) {
         group.push({
-          merchanId,
+          merchantId,
           method: "delete",
           productId: id,
         });
@@ -139,11 +193,11 @@ const transformProductGroup = async (
         const domain = store.domain ? store.domain : store.info.domain;
         if (!product.product_type) return group;
         const type = product.product_type;
-        const googleProductCateogry = findCategory(type, categories);
+        const googleProductCategory = findCategory(type, categories);
         const imageLink = getImageLink(product, variant);
-        if (googleProductCateogry && imageLink) {
+        if (googleProductCategory && imageLink) {
           const itemGroupId = product.id;
-          const additionalImageLinks = prodcut.images.map((image) => image.src);
+          const additionalImageLinks = product.images.map((image) => image.src);
           const link = `https://${domain}/products/${product.handle}?variant=${variant.id}`;
           const description = getDescription(product.body_html);
           const options = product.options;
@@ -157,11 +211,11 @@ const transformProductGroup = async (
           const currency = countryCurrency(targetCountry);
           price = await convertCurrency(store.info.currency, currency, price);
           const body = {
-            merchanId,
+            merchantId,
             method: getMethod(item.verb),
             product: {
               kind: "content#product",
-              offerId: variant.id,
+              offerId: variant.id.toString(),
               title,
               description,
               link,
@@ -169,17 +223,18 @@ const transformProductGroup = async (
               contentLanguage,
               targetCountry,
               channel,
-              additionalImageLinks,
               ageGroup: getAgeGroup(variant.title),
-              availability: "in Stock",
+              availability: "in stock",
+              additionalImageLinks,
               availabilityDate: product.published_at,
+              brand: "Google",
               color: transformColor(color),
               condition: "new",
               gender,
-              googleProductCateogry,
-              gtin: itemGroupId,
-              itemGroupId,
-              mpn: itemGroupId,
+              googleProductCategory,
+              gtin: itemGroupId.toString(),
+              itemGroupId: itemGroupId.toString(),
+              mpn: itemGroupId.toString(),
               price: {
                 currency,
                 value: Number(price).toFixed(2),

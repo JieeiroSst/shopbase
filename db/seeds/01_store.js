@@ -16,6 +16,7 @@ exports.seed = function (knex) {
           secret_api: "d13fec20efc0b0de2e45010d3bbb0c43",
           token:
             "c7d54b168e926045504ce3af5a7226116efe6b592679085cc3bf0c59283b4b7f",
+          currency:"USD"
         },
         values: {
           type: "service_account",

@@ -2,6 +2,10 @@ require("dotenv").config();
 
 let env = process.env;
 
+function intValue(value, defaultValue) {
+  return isNaN(value) ? defaultValue : parseInt(value);
+}
+
 module.exports = {
   shopbase: {
     token: env.TOKEN,
@@ -34,4 +38,7 @@ module.exports = {
     privateKey: env.GOOGLE_API_PRIVATE_KEY,
     clientMail: env.GOOGLE_CLIENT_EMAIL,
   },
+  lib: {
+    appId: env.appIds,
+  }
 };
