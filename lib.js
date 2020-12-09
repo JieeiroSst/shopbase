@@ -1,4 +1,3 @@
-const { overSome } = require("lodash");
 const oxr = require("open-exchange-rates");
 
 const config = require("./config");

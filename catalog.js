@@ -5,7 +5,7 @@ const db = require("./db/knex");
 
 const sendBatch = async (data, token) => {
   return await axios({
-    method: "POST",
+    method: "post",
     url: "https://www.googleapis.com/content/v2.1/products/batch",
     data: {
       entries: data,
@@ -41,16 +41,7 @@ const processBatch = async (store, data, categories) => {
           const numIndex = Number(index);
           body[numIndex].batchId = numIndex;
         }
-        const dataJson = {
-          entries: body,
-        };
-        // console.log(JSON.stringify(a));
-        console.log(
-          "\n",
-          await sendBatch(dataJson, googleInfo.google_sync_token),
-          ">>>>>>>>> \n"
-        );
-        await sendBatch(a, googleInfo.google_sync_token);
+        await sendBatch(body, googleInfo.google_sync_token);
       }
     }
   }
