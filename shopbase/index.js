@@ -1,7 +1,7 @@
 const axios = require("axios");
 const { google } = require("googleapis");
-const config = require("./config");
-const db = require("./db/knex");
+const config = require("../config");
+const db = require("../db/knex");
 
 const sendRequest = async () => {
   return await axios({

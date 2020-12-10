@@ -12,6 +12,7 @@
   "dependencies": {
     "axios": "^0.21.0",
     "dotenv": "^8.2.0",
+    "exceljs": "^4.2.0",
     "googleapis": "^66.0.0",
     "knex": "^0.21.12",
     "knex-migrate": "^1.7.4",

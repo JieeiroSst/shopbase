@@ -1,7 +1,7 @@
 const _ = require("lodash");
 const axios = require("axios");
-const tranform = require("./transfrom");
-const db = require("./db/knex");
+const tranform = require("../transfrom");
+const db = require("../db/knex");
 
 const sendBatch = async (data, token) => {
   return await axios({

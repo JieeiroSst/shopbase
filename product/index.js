@@ -1,5 +1,5 @@
-const db = require("./db/knex");
-const { sendRequest } = require("./shopbase");
+const db = require("../db/knex");
+const { sendRequest } = require("../shopbase");
 
 const insertProduct = async (shop) => {
   const data = await sendRequest();

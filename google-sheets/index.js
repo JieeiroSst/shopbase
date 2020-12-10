@@ -1,7 +1,7 @@
 const { google } = require("googleapis");
 
-const config = require("./config");
-const db = require("./db/knex");
+const config = require("../config");
+const db = require("../db/knex");
 
 const client = new google.auth.JWT(
   config.sheets.clientMail,

@@ -1,5 +1,5 @@
 const _ = require("lodash");
-const db = require("./db/knex");
+const db = require("../db/knex");
 
 const getDateValue = async (shop, key, defaultValue) => {
   const value = await getValue(shop, key);

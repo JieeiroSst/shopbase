@@ -1,9 +1,9 @@
 const striptags = require("striptags");
 const fx = require("money");
 
-const db = require("./db/knex");
+const db = require("../db/knex");
 
-const { updateExchangeRates } = require("./lib");
+const { updateExchangeRates } = require("../lib");
 
 const truncateString = (name, length) => {
   return name.length > length ? name.substring(0, length) + "..." : name;
