@@ -8,7 +8,6 @@ const sendRequest = async () => {
     method: "get",
     url: `${config.shopbase.url}/products.json`,
     headers: {
-      "X-ShopBase-Access-Token": config.shopbase.token,
       "X-Sb-Shop-Api-Call-Limit": 29 / 30,
     },
   });

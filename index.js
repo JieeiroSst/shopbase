@@ -4,6 +4,12 @@ const { insertProduct } = require("./product");
 const { getCategoriesSheets } = require("./google-sheets");
 const { productBatch } = require("./catalog");
 
+function sleep(ms) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
 const main = async () => {
   getCategoriesSheets();
   const shops = await db("shopbase_stores").select("shop");
@@ -12,6 +18,7 @@ const main = async () => {
     updateToken(item);
     insertProduct(item);
   }
+  await sleep(10000);
   productBatch();
 };
 
