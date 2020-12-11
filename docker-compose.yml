@@ -7,7 +7,7 @@ networks:
 
 services:
   db:
-    image: postgres:10.4
+    image: postgres:12.5
     restart: always
     volumes:
       - ./db-data:/var/lib/postgresql/data
@@ -24,15 +24,16 @@ services:
     build:
       context: .
       dockerfile: dockerfile
+    command: sh -c "npm install && npm install -g knex && knex migrate:latest && npm start"
     links:
       - db
     environment:
       NODE_ENV: development
-      PORT: 54322
+      PORT: 5432
       DB_HOST: db
       DB_USER: user
       DB_PASS: pass
-      DATABASE_URL: postgres://user:pass@localhost:54322/shopbase
+      DATABASE_URL: postgres://user:pass@localhost:5432/shopbase
     depends_on:
       - db
     env_file:

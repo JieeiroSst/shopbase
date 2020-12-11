@@ -5,8 +5,12 @@ module.exports = {
       database: "shopbase",
       user: "user",
       password: "pass",
-      host: "localhost",
-      port: 54322,
+      host: "db",
+      port: 5432,
+    },
+    pool: {
+      min: 2,
+      max: 10,
     },
     migrations: {
       directory: __dirname + "/db/migrations",
