@@ -1,32 +1,49 @@
-version: '3'
+version: "3"
+
+networks:
+  db-data:
+  app-chmp:
+    driver: bridge
 
 services:
-  postgres:
-    image: postgres:9.6.5-alpine
+  db:
+    image: postgres:10.4
     restart: always
-    environment:
-      - POSTGRES_HOST=127.0.0.1
-      - POSTGRES_PASSWORD=1234
     volumes:
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-      - postgres-data:/var/lib/postgresql/data
+      - ./db-data:/var/lib/postgresql/data
     ports:
-      - '5433:5432'
-    network_mode: "host"
+      - "54322:5432"
+    environment:
+      POSTGRES_USER: user 
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: shopbase
+    networks:
+      - app-chmp      
   node-app:
     image: baseshop
     build:
       context: .
       dockerfile: dockerfile
+    links:
+      - db
+    environment:
+      NODE_ENV: development
+      PORT: 54322
+      DB_HOST: db
+      DB_USER: user
+      DB_PASS: pass
+      DATABASE_URL: postgres://user:pass@0.0.0.0:54322/shopbase
+    depends_on:
+      - db
     env_file:
       - .env
+    ports:
+      - "3200:3200"
     volumes:
       - "./:/app"
     working_dir: /app
-    ports:
-      - "3200:3200"
-    depends_on:
-      - postgres
-    network_mode: "host"
-volumes:    
-  postgres-data:  
+    networks:
+      - app-chmp 
+
+volumes:
+  db-data:
