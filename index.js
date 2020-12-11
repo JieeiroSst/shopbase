@@ -12,17 +12,17 @@ function sleep(ms) {
 }
 
 const main = async () => {
-  // await saveDataDB();
+  await saveDataDB();
   await getCategoriesSheets();
-  // sleep(1000);
-  // const shops = await db("shopbase_stores").select("shop");
-  // const arrayShop = shops.map((item) => item.shop);
-  // for (let item of arrayShop) {
-  //   await updateToken(item);
-  //   await insertProduct(item);
-  // }
-  // await sleep(10000);
-  // await productBatch();
+  sleep(1000);
+  const shops = await db("shopbase_stores").select("shop");
+  const arrayShop = shops.map((item) => item.shop);
+  for (let item of arrayShop) {
+    await updateToken(item);
+    await insertProduct(item);
+  }
+  await sleep(10000);
+  await productBatch();
 };
 
 main();

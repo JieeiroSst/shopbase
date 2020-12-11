@@ -5,7 +5,7 @@ module.exports = {
       database: "shopbase",
       user: "user",
       password: "pass",
-      host: "0.0.0.0",
+      host: "localhost",
       port: 54322,
     },
     migrations: {

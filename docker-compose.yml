@@ -32,7 +32,7 @@ services:
       DB_HOST: db
       DB_USER: user
       DB_PASS: pass
-      DATABASE_URL: postgres://user:pass@0.0.0.0:54322/shopbase
+      DATABASE_URL: postgres://user:pass@localhost:54322/shopbase
     depends_on:
       - db
     env_file:
