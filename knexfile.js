@@ -5,7 +5,7 @@ module.exports = {
       database: "shopbase",
       user: "user",
       password: "pass",
-      host: "db",
+      host: "172.24.0.2",
       port: 5432,
     },
     pool: {
