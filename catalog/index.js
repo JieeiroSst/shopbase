@@ -19,30 +19,28 @@ const sendBatch = async (data, token) => {
 const processBatch = async (store, data, categories) => {
   const googleInfo = store.google_sync;
   if (googleInfo) {
-    let values = googleInfo.values;
-    for (const item of values) {
-      const mmMerchantId = item.mmc_merchant_id;
-      const mmcLocation = item.location;
-      let requestBody = [];
-      for (const item of data) {
-        const product = await tranform.transformProductGroup(
-          item,
-          mmcLocation,
-          store,
-          categories,
-          Number(mmMerchantId),
-          googleInfo.single_variant
-        );
-        if (product) requestBody = requestBody.concat(product);
+    let item = googleInfo.values;
+    const mmMerchantId = item.mmc_merchant_id;
+    const mmcLocation = item.location;
+    let requestBody = [];
+    for (const item of data) {
+      const product = await tranform.transformProductGroup(
+        item,
+        mmcLocation,
+        store,
+        categories,
+        Number(mmMerchantId),
+        googleInfo.single_variant
+      );
+      if (product) requestBody = requestBody.concat(product);
+    }
+    const bodies = _.chunk(requestBody, 500);
+    for (const body of bodies) {
+      for (const index in body) {
+        const numIndex = Number(index);
+        body[numIndex].batchId = numIndex;
       }
-      const bodies = _.chunk(requestBody, 500);
-      for (const body of bodies) {
-        for (const index in body) {
-          const numIndex = Number(index);
-          body[numIndex].batchId = numIndex;
-        }
-        await sendBatch(body, googleInfo.google_sync_token);
-      }
+      await sendBatch(body, googleInfo.google_sync_token);
     }
   }
 };

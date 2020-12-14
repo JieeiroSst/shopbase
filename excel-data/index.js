@@ -20,13 +20,12 @@ const saveDataDB = async () => {
         client_email: index.google_client_mail,
       },
       google_sync: {
-        values: [
-          {
-            id: index.google_sync_id,
-            location: index.google_sync_location,
-            mmc_merchant_id: index.google_sync_mmc_merchant_id,
-          },
-        ],
+        values: {
+          id: index.google_sync_id,
+          location: index.google_sync_location,
+          mmc_merchant_id: index.google_sync_mmc_merchant_id,
+        },
+
         single_variant: index.google_sync_single_variant,
         google_sync_token: index.google_sync_google_sync_token,
       },
