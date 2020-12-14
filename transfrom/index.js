@@ -214,7 +214,6 @@ const transformProductGroup = async (
             merchantId,
             method: getMethod(item.verb),
             product: {
-              kind: "content#product",
               offerId: variant.id.toString(),
               title,
               description,
